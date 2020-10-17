@@ -73,4 +73,10 @@ List<ThemeData> darkThemeList = [
     brightness: Brightness.light,
     visualDensity: VisualDensity.adaptivePlatformDensity,
   ),
+  ThemeData(
+    primaryColor: Colors.pink[800],
+    backgroundColor: Colors.white,
+    brightness: Brightness.light,
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+  ),
 ];
