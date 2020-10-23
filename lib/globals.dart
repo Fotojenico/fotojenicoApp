@@ -25,6 +25,7 @@ String webApiUrl = kDebugMode ? 'http://192.168.1.110:8000/api/' : 'https://foto
 List<ThemeData> lightThemeList = [
   ThemeData(
     primaryColor: Colors.amber[800],
+    accentColor: Colors.pink,
     backgroundColor: Colors.white,
     brightness: Brightness.light,
     visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -51,6 +52,7 @@ List<ThemeData> lightThemeList = [
 List<ThemeData> darkThemeList = [
   ThemeData(
     primaryColor: Colors.amber[800],
+    accentColor: Colors.pink,
     backgroundColor: Colors.white,
     brightness: Brightness.light,
     visualDensity: VisualDensity.adaptivePlatformDensity,

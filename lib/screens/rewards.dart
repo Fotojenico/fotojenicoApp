@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:math';
 import 'package:fotojenico/navbar.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class RewardsScreen extends StatefulWidget {
   @override
@@ -12,6 +14,24 @@ class RewardsScreen extends StatefulWidget {
 }
 
 class _RewardsState extends State<RewardsScreen> {
+  Widget rewardWidget(int totalSteps){
+    return CircularStepProgressIndicator(
+      totalSteps: totalSteps,
+      currentStep: 5,
+      stepSize: 10,
+      selectedColor: Theme.of(context).accentColor,
+      unselectedColor: Theme.of(context).backgroundColor,
+      padding: pi / 200,
+      width: 150,
+      height: 150,
+      child: Icon(
+        FontAwesomeIcons.smile,
+        color: Theme.of(context).primaryColor,
+        size: 84,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,12 +41,8 @@ class _RewardsState extends State<RewardsScreen> {
             crossAxisCount: 4,
             itemCount: 20,
             itemBuilder: (BuildContext context, int index) => new Container(
-                color: Colors.green,
                 child: new Center(
-                  child: new CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: new Text('$index'),
-                  ),
+                  child: rewardWidget(15),
                 )),
             staggeredTileBuilder: (int index) => new StaggeredTile.count(2, 2),
             mainAxisSpacing: 4.0,
