@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fotojenico/screens/account.dart';
+import 'package:fotojenico/screens/camera.dart';
+import 'package:fotojenico/screens/home.dart';
+import 'package:fotojenico/screens/rewards.dart';
 
 Widget navBar(BuildContext context, int _selectedIndex) {
   return BottomNavigationBar(
@@ -27,16 +31,44 @@ Widget navBar(BuildContext context, int _selectedIndex) {
       if (value != _selectedIndex) {
         switch (value) {
           case 0:
-            Navigator.pushNamed(context, '/camera');
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (c, a1, a2) => CameraScreen(),
+                transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
+                transitionDuration: Duration(milliseconds: 500),
+              ),
+            );
             break;
           case 1:
-            Navigator.pushNamed(context, '/home');
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (c, a1, a2) => HomeScreen(),
+                transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
+                transitionDuration: Duration(milliseconds: 500),
+              ),
+            );
             break;
           case 2:
-            Navigator.pushNamed(context, '/rewards');
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (c, a1, a2) => RewardsScreen(),
+                transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
+                transitionDuration: Duration(milliseconds: 500),
+              ),
+            );
             break;
           case 3:
-            Navigator.pushNamed(context, '/account');
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (c, a1, a2) => AccountScreen(),
+                transitionsBuilder: (c, anim, a2, child) => FadeTransition(opacity: anim, child: child),
+                transitionDuration: Duration(milliseconds: 500),
+              ),
+            );
             break;
         }
       }
