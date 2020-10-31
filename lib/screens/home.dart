@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:lit_firebase_auth/lit_firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:fotojenico/globals.dart';
 import 'package:fotojenico/navbar.dart';
 
@@ -143,6 +143,22 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  static const MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
+    childDirected: false,
+    testDevices: <String>[], // Android emulators are considered test devices
+  );
+
+  BannerAd myBanner = BannerAd(
+    // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+    // https://developers.google.com/admob/android/test-ads
+    // https://developers.google.com/admob/ios/test-ads
+    adUnitId: 'ca-app-pub-3693041012036990/2470198204',
+    size: AdSize.smartBanner,
+    listener: (MobileAdEvent event) {
+      print("BannerAd event is $event");
+    },
+  );
+
   void initState() {
     super.initState();
     if (user == null) {
@@ -154,7 +170,10 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     if (!loading && !finished) {
       getDataList();
     }
-
+    myBanner..load()..show(
+        // Banner Position
+        anchorType: AnchorType.top,
+      );
     _buttonController = new AnimationController(duration: new Duration(milliseconds: 1000), vsync: this);
 
     rotate = new Tween<double>(
@@ -216,6 +235,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    myBanner.dispose();
     _buttonController.dispose();
     super.dispose();
   }

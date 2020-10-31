@@ -1,3 +1,4 @@
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +19,7 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
+    FirebaseAdMob.instance.initialize(appId: "ca-app-pub-3693041012036990~1825941193");
     await Settings.init(cacheProvider: SharePreferenceCache());
     cameras = await availableCameras();
   } on CameraException catch (e) {
