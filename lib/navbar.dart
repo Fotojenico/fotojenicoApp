@@ -4,6 +4,7 @@ import 'package:fotojenico/screens/account.dart';
 import 'package:fotojenico/screens/camera.dart';
 import 'package:fotojenico/screens/home.dart';
 import 'package:fotojenico/screens/rewards.dart';
+import 'package:fotojenico/globals.dart';
 
 Widget navBar(BuildContext context, int _selectedIndex) {
   return BottomNavigationBar(
@@ -29,6 +30,14 @@ Widget navBar(BuildContext context, int _selectedIndex) {
     selectedItemColor: Theme.of(context).primaryColor,
     onTap: (value) {
       if (value != _selectedIndex) {
+        if(value != 1){
+          try {
+            myBanner?.dispose();
+            myBanner = null;
+          } catch (ex) {
+            print('Failed to dispose ad');
+          }
+        }
         switch (value) {
           case 0:
             Navigator.push(

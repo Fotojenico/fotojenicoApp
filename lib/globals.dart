@@ -1,3 +1,4 @@
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/foundation.dart';
@@ -82,3 +83,13 @@ List<ThemeData> darkThemeList = [
     visualDensity: VisualDensity.adaptivePlatformDensity,
   ),
 ];
+BannerAd myBanner = BannerAd(
+  // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+  // https://developers.google.com/admob/android/test-ads
+  // https://developers.google.com/admob/ios/test-ads
+  adUnitId: 'ca-app-pub-3693041012036990/2470198204',
+  size: AdSize.smartBanner,
+  listener: (MobileAdEvent event) {
+    print("BannerAd event is $event");
+  },
+);
