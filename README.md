@@ -15,6 +15,14 @@ https://pub.dev/packages/flutter_staggered_grid_view
 https://github.com/miguelpruivo/flutter_file_picker
 ### Font awesome
 https://pub.dev/packages/font_awesome_flutter
+### Launcher icons
+https://pub.dev/packages/flutter_launcher_icons
+### Admob
+https://pub.dev/packages/firebase_admob
+### Settings screen
+https://pub.dev/packages/flutter_settings_screens
+### Step progress indicator
+https://pub.dev/packages/step_progress_indicator
 
 
 ## Add later
@@ -28,6 +36,14 @@ https://pub.dev/packages/font_awesome_flutter
 - https://github.com/aagarwal1012/Liquid-Pull-To-Refresh
 - https://github.com/woltapp/blurhash
 - https://github.com/Clancey/simple_auth
+- https://pub.dev/packages/video_trimmer
+- https://pub.dev/packages/thumbnails
+- https://pub.dev/packages/flutter_secure_storage
+- https://pub.dev/packages/shared_preferences
+- https://pub.dev/packages/admob_consent
+- https://pub.dev/packages/fluttertoast
+- https://pub.dev/packages/flutter_vlc_player
+- https://pub.dev/packages/camerawesome
 
 
 ### Notes
