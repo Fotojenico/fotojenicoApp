@@ -19,7 +19,10 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
-    FirebaseAdMob.instance.initialize(appId: "ca-app-pub-3693041012036990~1825941193");
+    if (adToggle){
+      FirebaseAdMob.instance.initialize(appId: "ca-app-pub-3693041012036990~1825941193");
+    }
+
     await Settings.init(cacheProvider: SharePreferenceCache());
     cameras = await availableCameras();
   } on CameraException catch (e) {

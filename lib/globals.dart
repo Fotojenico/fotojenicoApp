@@ -12,6 +12,7 @@ FirebaseAnalytics analytics = FirebaseAnalytics();
 FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
 LitUser user;
 List<CameraDescription> cameras = [];
+bool adToggle = false;
 bool cameraToggle = false;
 bool imageToggle = false;
 bool videoStartToggle = false;
@@ -84,9 +85,6 @@ List<ThemeData> darkThemeList = [
   ),
 ];
 BannerAd myBanner = BannerAd(
-  // Replace the testAdUnitId with an ad unit id from the AdMob dash.
-  // https://developers.google.com/admob/android/test-ads
-  // https://developers.google.com/admob/ios/test-ads
   adUnitId: 'ca-app-pub-3693041012036990/2470198204',
   size: AdSize.smartBanner,
   listener: (MobileAdEvent event) {

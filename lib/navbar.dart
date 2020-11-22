@@ -30,7 +30,7 @@ Widget navBar(BuildContext context, int _selectedIndex) {
     selectedItemColor: Theme.of(context).primaryColor,
     onTap: (value) {
       if (value != _selectedIndex) {
-        if(value != 1){
+        if(value != 1 && adToggle){
           try {
             myBanner?.dispose();
             myBanner = null;

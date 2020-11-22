@@ -156,22 +156,24 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     if (!loading && !finished) {
       getDataList();
     }
-    if (myBanner == null){
-      myBanner = BannerAd(
-        // Replace the testAdUnitId with an ad unit id from the AdMob dash.
-        // https://developers.google.com/admob/android/test-ads
-        // https://developers.google.com/admob/ios/test-ads
-        adUnitId: 'ca-app-pub-3693041012036990/2470198204',
-        size: AdSize.smartBanner,
-        listener: (MobileAdEvent event) {
-          print("BannerAd event is $event");
-        },
+    if(adToggle){
+      if (myBanner == null){
+        myBanner = BannerAd(
+          // Replace the testAdUnitId with an ad unit id from the AdMob dash.
+          // https://developers.google.com/admob/android/test-ads
+          // https://developers.google.com/admob/ios/test-ads
+          adUnitId: 'ca-app-pub-3693041012036990/2470198204',
+          size: AdSize.smartBanner,
+          listener: (MobileAdEvent event) {
+            print("BannerAd event is $event");
+          },
+        );
+      }
+      myBanner..load()..show(
+        // Banner Position
+        anchorType: AnchorType.top,
       );
     }
-    myBanner..load()..show(
-      // Banner Position
-      anchorType: AnchorType.top,
-    );
     _buttonController = new AnimationController(duration: new Duration(milliseconds: 1000), vsync: this);
 
     rotate = new Tween<double>(
