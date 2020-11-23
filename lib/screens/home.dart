@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fotojenico/objects/post_list.dart';
 import 'package:http/http.dart' as http;
 import 'package:lit_firebase_auth/lit_firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,23 +25,16 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
   Animation<double> bottom;
   Animation<double> width;
   List data = [];
+  List dataCache = [];
   bool loading = false;
   bool finished = false;
+  bool start = true;
   String postUrl = webApiUrl + 'posts/';
   Icon floatingIcon = Icon(
     Icons.favorite_border,
     size: 40,
   );
-  var selectedImage;
-  Map<String, dynamic> lastFav;
-
-  addUrls(urlList) async {
-    var urls = data;
-    urls.insertAll(0, urlList);
-    setState(() {
-      data = urls;
-    });
-  }
+  Result selectedImage;
 
   Future<Null> getDataList() async {
     setState(() {
@@ -56,28 +50,26 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     try {
       var urlList = [];
       final request = await http.get(postUrl, headers: header);
-      Map resultMap = jsonDecode(request.body);
-      var resultList;
-      resultMap.forEach((key, value) {
-        if (key == 'results') {
-          resultList = value;
-        }
-        if (key == 'next') {
-          if (value == null) {
-            setState(() {
-              finished = true;
-            });
-
-            return;
-          } else {
-            setState(() {
-              postUrl = value;
-            });
-          }
+      PostList postList = PostList.fromRawJson(request.body);
+      if (postList.next == null) {
+        setState(() {
+          finished = true;
+        });
+      } else {
+        setState(() {
+          postUrl = postList.next;
+        });
+      }
+      urlList.addAll(postList.results);
+      var urls = dataCache;
+      urls.insertAll(0, urlList);
+      setState(() {
+        dataCache = urls;
+        if (start){
+          data = dataCache;
+          start = false;
         }
       });
-      urlList.addAll(resultList);
-      addUrls(urlList);
     } catch (e) {
       print('caught generic exception');
       print(e);
@@ -87,7 +79,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  Future<Null> sendVote(String postId, int voteWeight) async {
+  Future<Null> sendVote(Result post, int voteWeight) async {
     String _token;
     Future<IdTokenResult> idToken;
     String voteUrl = webApiUrl + 'votes/';
@@ -97,7 +89,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     header["auth"] = _token;
     try {
       await http.post(voteUrl, headers: header, body: {
-        'post': postId,
+        'post': post.id,
         'vote_weight': voteWeight.toString(),
       });
     } catch (e) {
@@ -106,7 +98,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<Null> sendFav(String postId) async {
+  Future<Null> sendFav(Result post) async {
     String _token;
     Future<IdTokenResult> idToken;
     String voteUrl = webApiUrl + 'fav/';
@@ -115,11 +107,8 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     Map<String, String> header = new Map();
     header["auth"] = _token;
     try {
-      var response = await http.post(voteUrl, headers: header, body: {
-        'post': postId,
-      });
-      setState(() {
-        lastFav = jsonDecode(response.body.toString());
+      await http.post(voteUrl, headers: header, body: {
+        'post': post.id,
       });
     } catch (e) {
       print('caught generic exception');
@@ -127,7 +116,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<Null> sendUnFav(String postId) async {
+  Future<Null> sendUnFav(Result post) async {
     String _token;
     Future<IdTokenResult> idToken;
     String favUrl = webApiUrl + 'fav/';
@@ -136,14 +125,12 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     Map<String, String> header = new Map();
     header["auth"] = _token;
     try {
-      await http.delete(favUrl + lastFav['id'].toString() + '/', headers: header);
+      await http.delete(favUrl + post.id + '/', headers: header);
     } catch (e) {
       print('caught generic exception');
       print(e);
     }
   }
-
-
 
   void initState() {
     super.initState();
@@ -156,8 +143,8 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     if (!loading && !finished) {
       getDataList();
     }
-    if(adToggle){
-      if (myBanner == null){
+    if (adToggle) {
+      if (myBanner == null) {
         myBanner = BannerAd(
           // Replace the testAdUnitId with an ad unit id from the AdMob dash.
           // https://developers.google.com/admob/android/test-ads
@@ -169,10 +156,12 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         );
       }
-      myBanner..load()..show(
-        // Banner Position
-        anchorType: AnchorType.top,
-      );
+      myBanner
+        ..load()
+        ..show(
+          // Banner Position
+          anchorType: AnchorType.top,
+        );
     }
     _buttonController = new AnimationController(duration: new Duration(milliseconds: 1000), vsync: this);
 
@@ -190,6 +179,11 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
         if (rotate.isCompleted) {
           var i = data.removeLast();
           data.insert(0, i);
+          var j = dataCache.removeLast();
+          dataCache.insert(0, j);
+          if (dataCache != data){
+            data = dataCache;
+          }
           _buttonController.reset();
         }
       });
@@ -239,7 +233,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Positioned upperCard(var img, double bottom, double right, double left, double rotation, double skew) {
+  Positioned upperCard(Result post, double bottom, double right, double left, double rotation, double skew) {
     Size screenSize = MediaQuery.of(context).size;
 
     return new Positioned(
@@ -251,11 +245,11 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
         onDismissed: (DismissDirection direction) {
           //_swipeAnimation();
           if (direction == DismissDirection.endToStart) {
-            likePost(img['id']);
-            dismissImg(img);
+            likePost(post);
+            dismissImg(post);
           } else {
-            dislikePost(img['id']);
-            dismissImg(img);
+            dislikePost(post);
+            dismissImg(post);
           }
         },
         child: new Transform(
@@ -291,11 +285,10 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
                         new Container(
                           width: screenSize.width,
                           height: screenSize.height,
-                          decoration: new BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(img['file']),
-                              fit: BoxFit.cover,
-                            ),
+                          child: CachedNetworkImage(
+                            placeholder: (context, url) => CircularProgressIndicator(),
+                            imageUrl: post.file,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ],
@@ -310,7 +303,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Positioned backgroundCard(var img) {
+  Positioned backgroundCard(Result post) {
     Size screenSize = MediaQuery.of(context).size;
     return new Positioned(
       bottom: 0.0,
@@ -329,11 +322,12 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
               new Container(
                 width: screenSize.width,
                 height: screenSize.height,
-                decoration: new BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(img['file']),
-                    fit: BoxFit.cover,
-                  ),
+                child: CachedNetworkImage(
+                  imageUrl: post.file,
+                  fit: BoxFit.cover,
+                  progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      CircularProgressIndicator(value: downloadProgress.progress),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
               ),
             ],
@@ -343,9 +337,10 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  dismissImg(var img) {
+  dismissImg(Result post) {
     setState(() {
-      data.remove(img);
+      data.remove(post);
+      dataCache.remove(post);
       floatingIcon = Icon(
         Icons.favorite_border,
         size: 40,
@@ -353,24 +348,24 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  likePost(String postId) {
-    sendVote(postId, 1);
+  likePost(Result post) {
+    sendVote(post, 1);
   }
 
-  dislikePost(String postId) {
-    sendVote(postId, -1);
+  dislikePost(Result post) {
+    sendVote(post, -1);
   }
 
-  favPost(String postId) {
+  favPost(Result post) {
     setState(() {
       if (floatingIcon.icon != Icons.favorite_border) {
-        sendUnFav(postId);
+        sendUnFav(post);
         floatingIcon = Icon(
           Icons.favorite_border,
           size: 40,
         );
       } else {
-        sendFav(postId);
+        sendFav(post);
         floatingIcon = Icon(
           Icons.favorite,
           size: 40,
@@ -432,7 +427,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
       floatingActionButton: GestureDetector(
         onTap: () {
           if (selectedImage != null) {
-            favPost(selectedImage['id']);
+            favPost(selectedImage);
           }
         },
         // ignore: missing_required_param
