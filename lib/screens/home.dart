@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -30,6 +31,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
   bool finished = false;
   bool start = true;
   String postUrl = webApiUrl + 'posts/';
+  String lastFav;
   Icon floatingIcon = Icon(
     Icons.favorite_border,
     size: 40,
@@ -107,8 +109,11 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     Map<String, String> header = new Map();
     header["auth"] = _token;
     try {
-      await http.post(voteUrl, headers: header, body: {
+      var response = await http.post(voteUrl, headers: header, body: {
         'post': post.id,
+      });
+      setState(() {
+        lastFav = jsonDecode(response.body.toString())['id'].toString();
       });
     } catch (e) {
       print('caught generic exception');
@@ -116,7 +121,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<Null> sendUnFav(Result post) async {
+  Future<Null> sendUnFav() async {
     String _token;
     Future<IdTokenResult> idToken;
     String favUrl = webApiUrl + 'fav/';
@@ -125,7 +130,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     Map<String, String> header = new Map();
     header["auth"] = _token;
     try {
-      await http.delete(favUrl + post.id + '/', headers: header);
+      await http.delete(favUrl + lastFav + '/', headers: header);
     } catch (e) {
       print('caught generic exception');
       print(e);
@@ -359,7 +364,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
   favPost(Result post) {
     setState(() {
       if (floatingIcon.icon != Icons.favorite_border) {
-        sendUnFav(post);
+        sendUnFav();
         floatingIcon = Icon(
           Icons.favorite_border,
           size: 40,
