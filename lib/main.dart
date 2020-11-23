@@ -9,7 +9,6 @@ import 'package:fotojenico/screens/home.dart';
 import 'package:fotojenico/screens/rewards.dart';
 import 'package:fotojenico/screens/send.dart';
 import 'package:lit_firebase_auth/lit_firebase_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:camera/camera.dart';
 import 'package:fotojenico/globals.dart';
 import 'dart:async';
