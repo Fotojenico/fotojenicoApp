@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:fotojenico/objects/post_list.dart';
+import 'package:fotojenico/objects/post.dart';
 import 'package:http/http.dart' as http;
 import 'package:lit_firebase_auth/lit_firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,15 +28,16 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
   List data = [];
   List dataCache = [];
   bool loading = false;
-  bool finished = false;
+  bool lastEmpty = false;
   bool start = true;
   String postUrl = webApiUrl + 'posts/';
   String lastFav;
+  DateTime watchCounter = DateTime.now();
   Icon floatingIcon = Icon(
     Icons.favorite_border,
     size: 40,
   );
-  Result selectedImage;
+  Post selectedImage;
 
   Future<Null> getDataList() async {
     setState(() {
@@ -52,17 +53,13 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     try {
       var urlList = [];
       final request = await http.get(postUrl, headers: header);
-      PostList postList = PostList.fromRawJson(request.body);
-      if (postList.next == null) {
+      List<Post> postList = ((json.decode(request.body) as List).map((i) => Post.fromJson(i)).toList());
+      if(postList.length == 0){
         setState(() {
-          finished = true;
-        });
-      } else {
-        setState(() {
-          postUrl = postList.next;
+          lastEmpty = true;
         });
       }
-      urlList.addAll(postList.results);
+      urlList.addAll(postList);
       var urls = dataCache;
       urls.insertAll(0, urlList);
       setState(() {
@@ -81,7 +78,8 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  Future<Null> sendVote(Result post, int voteWeight) async {
+  Future<Null> sendVote(Post post, int voteWeight) async {
+    String timeDiff = DateTime.now().difference(watchCounter).inSeconds.toString();
     String _token;
     Future<IdTokenResult> idToken;
     String voteUrl = webApiUrl + 'votes/';
@@ -93,6 +91,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
       await http.post(voteUrl, headers: header, body: {
         'post': post.id,
         'vote_weight': voteWeight.toString(),
+        'watch_seconds': timeDiff,
       });
     } catch (e) {
       print('caught generic exception');
@@ -100,7 +99,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<Null> sendFav(Result post) async {
+  Future<Null> sendFav(Post post) async {
     String _token;
     Future<IdTokenResult> idToken;
     String voteUrl = webApiUrl + 'fav/';
@@ -145,7 +144,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
         navContext = context; // Saving context to use at account screen
       });
     }
-    if (!loading && !finished) {
+    if (!loading) {
       getDataList();
     }
     if (adToggle) {
@@ -238,7 +237,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Positioned upperCard(Result post, double bottom, double right, double left, double rotation, double skew) {
+  Positioned upperCard(Post post, double bottom, double right, double left, double rotation, double skew) {
     Size screenSize = MediaQuery.of(context).size;
 
     return new Positioned(
@@ -256,6 +255,9 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
             dislikePost(post);
             dismissImg(post);
           }
+          setState(() {
+            watchCounter = DateTime.now();
+          });
         },
         child: new Transform(
           alignment: Alignment.bottomRight,
@@ -308,7 +310,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Positioned backgroundCard(Result post) {
+  Positioned backgroundCard(Post post) {
     Size screenSize = MediaQuery.of(context).size;
     return new Positioned(
       bottom: 0.0,
@@ -342,7 +344,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  dismissImg(Result post) {
+  dismissImg(Post post) {
     setState(() {
       data.remove(post);
       dataCache.remove(post);
@@ -353,15 +355,15 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  likePost(Result post) {
+  likePost(Post post) {
     sendVote(post, 1);
   }
 
-  dislikePost(Result post) {
+  dislikePost(Post post) {
     sendVote(post, -1);
   }
 
-  favPost(Result post) {
+  favPost(Post post) {
     setState(() {
       if (floatingIcon.icon != Icons.favorite_border) {
         sendUnFav();
@@ -382,7 +384,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget homeController() {
     var dataLength = data.length;
 
-    if (dataLength == 3 && !loading && !finished) {
+    if (dataLength == 3 && !loading && !lastEmpty) {
       getDataList();
     }
     if (dataLength > 0) {
@@ -398,7 +400,9 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
               return backgroundCard(item);
             }
           }).toList());
-    } else if (finished) {
+    } else if (loading) {
+      return Text("Loading...", style: new TextStyle(color: Theme.of(context).hintColor, fontSize: 30.0));
+    } else {
       return Column(
         children: [
           Text("Restart"),
@@ -406,8 +410,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
             icon: FaIcon(FontAwesomeIcons.undo),
             onPressed: () {
               setState(() {
-                postUrl = webApiUrl + 'posts/';
-                finished = false;
+                lastEmpty = false;
               });
               getDataList();
             },
@@ -415,8 +418,6 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
         ],
         mainAxisAlignment: MainAxisAlignment.center,
       );
-    } else {
-      return Text("Loading...", style: new TextStyle(color: Theme.of(context).hintColor, fontSize: 30.0));
     }
   }
 

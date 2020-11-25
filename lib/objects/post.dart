@@ -1,43 +1,11 @@
 // To parse this JSON data, do
 //
-//     final postList = postListFromJson(jsonString);
+//     final post = postFromJson(jsonString);
 
 import 'dart:convert';
 
-class PostList {
-  PostList({
-    this.count,
-    this.next,
-    this.previous,
-    this.results,
-  });
-
-  final int count;
-  final String next;
-  final dynamic previous;
-  final List<Result> results;
-
-  factory PostList.fromRawJson(String str) => PostList.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory PostList.fromJson(Map<String, dynamic> json) => PostList(
-    count: json["count"],
-    next: json["next"],
-    previous: json["previous"],
-    results: List<Result>.from(json["results"].map((x) => Result.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "count": count,
-    "next": next,
-    "previous": previous,
-    "results": List<dynamic>.from(results.map((x) => x.toJson())),
-  };
-}
-
-class Result {
-  Result({
+class Post {
+  Post({
     this.id,
     this.upvoteCount,
     this.downvoteCount,
@@ -57,11 +25,11 @@ class Result {
   final DateTime sharedAt;
   final DateTime lastModified;
 
-  factory Result.fromRawJson(String str) => Result.fromJson(json.decode(str));
+  factory Post.fromRawJson(String str) => Post.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Result.fromJson(Map<String, dynamic> json) => Result(
+  factory Post.fromJson(Map<String, dynamic> json) => Post(
     id: json["id"],
     upvoteCount: json["upvote_count"],
     downvoteCount: json["downvote_count"],
