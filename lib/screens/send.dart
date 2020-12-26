@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:video_player/video_player.dart';
@@ -51,7 +51,10 @@ class _SendScreenState extends State<SendScreen> {
               Align(
                 alignment: Alignment.topLeft,
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back),
+                  icon: Icon(
+                      Icons.arrow_back,
+                    color: Colors.white.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+                  ),
                   onPressed: () {
                     setState(() {
                       sentScreenToggle = false;

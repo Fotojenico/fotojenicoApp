@@ -136,6 +136,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   Widget _fileSelectorWidget() {
     return IconButton(
       icon: Icon(Icons.file_upload),
+      color: Theme.of(context).backgroundColor,
       onPressed: () {
         filePicker();
       },
@@ -289,7 +290,10 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
           SizedBox(
             width: 90.0,
             child: RadioListTile<CameraDescription>(
-              title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
+              title: Icon(
+                getCameraLensIcon(cameraDescription.lensDirection),
+                color: Colors.white.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+              ),
               groupValue: controller?.description,
               value: cameraDescription,
               selected: true,
@@ -303,7 +307,10 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       return const Text('No camera found');
     } else {
       return IconButton(
-        icon: Icon(getCameraLensIcon(cameras[selectedCameraId].lensDirection)),
+        icon: Icon(
+          getCameraLensIcon(cameras[selectedCameraId].lensDirection),
+          color: Theme.of(context).backgroundColor,
+        ),
         onPressed: () {
           if (selectedCameraId >= cameras.length - 1) {
             setState(() {
