@@ -23,6 +23,14 @@ https://pub.dev/packages/firebase_admob
 https://pub.dev/packages/flutter_settings_screens
 ### Step progress indicator
 https://pub.dev/packages/step_progress_indicator
+### Cached network image
+https://pub.dev/packages/cached_network_image
+### Toast
+https://pub.dev/packages/fluttertoast
+### Easy localization
+https://pub.dev/packages/easy_localization
+### Flutter svg
+https://pub.dev/packages/flutter_svg
 
 
 ## Add later

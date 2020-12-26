@@ -29,6 +29,9 @@ dependencies:
   cupertino_icons: ^1.0.0
   step_progress_indicator: ^0.2.4+7
   cached_network_image: ^2.3.3
+  fluttertoast: ^7.1.5
+  easy_localization: ^2.3.3
+  flutter_svg: 0.19.1
 
 dev_dependencies:
   flutter_test:
