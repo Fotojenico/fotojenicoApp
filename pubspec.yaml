@@ -3,7 +3,7 @@ description: Which one is more fotojenico?
 
 publish_to: 'none'
 
-version: 0.2.6
+version: 0.2.7
 
 environment:
   sdk: ">=2.8.0 <3.0.0"
@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   share: ^0.6.4+5
-  camera: ^0.5.8+9
+  camera: 0.6.0
   video_player: ^1.0.0
   http: ^0.12.2
   provider: ^4.3.2+2

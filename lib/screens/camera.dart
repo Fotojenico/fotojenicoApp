@@ -417,7 +417,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
 
     try {
       videoPath = filePath;
-      await controller.startVideoRecording(filePath);
+      await controller.startVideoRecording();
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
@@ -431,7 +431,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     }
 
     try {
-      await controller.stopVideoRecording();
+      await controller.stopVideoRecording().then((file) => null);
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
@@ -496,7 +496,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     final Directory extDir = await getApplicationDocumentsDirectory();
     final String dirPath = '${extDir.path}/Pictures/flutter_test';
     await Directory(dirPath).create(recursive: true);
-    final String filePath = '$dirPath/${timestamp()}.jpg';
+    String filePath = '$dirPath/${timestamp()}.jpg';
 
     if (controller.value.isTakingPicture) {
       // A capture is already pending, do nothing.
@@ -504,7 +504,16 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     }
 
     try {
-      await controller.takePicture(filePath);
+      await controller.takePicture().then((XFile file) {
+        if (mounted) {
+          setState(() {
+            filePath = file.path;
+            videoController?.dispose();
+            videoController = null;
+          });
+          if (file != null) showInSnackBar('Picture saved to ${file.path}');
+        }
+      });
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
