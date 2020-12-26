@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:fotojenico/globals.dart';
 import 'package:fotojenico/navbar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -403,6 +404,15 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     } else if (loading) {
       return Text("Loading...", style: new TextStyle(color: Theme.of(context).hintColor, fontSize: 30.0));
     } else {
+      Fluttertoast.showToast(
+          msg: "Congratulations",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 5,
+          backgroundColor: Colors.amber,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
       return Column(
         children: [
           Text("Restart"),
