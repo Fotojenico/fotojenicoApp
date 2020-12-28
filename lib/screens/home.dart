@@ -295,7 +295,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
                           height: screenSize.height,
                           child: CachedNetworkImage(
                             placeholder: (context, url) => CircularProgressIndicator(),
-                            imageUrl: post.file,
+                            imageUrl: post.file.replaceAll('storage.googleapis.com/fotojenico', 's3.fotojenico.com'),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -331,7 +331,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
                 width: screenSize.width,
                 height: screenSize.height,
                 child: CachedNetworkImage(
-                  imageUrl: post.file,
+                  imageUrl: post.file.replaceAll('storage.googleapis.com/fotojenico', 's3.fotojenico.com'),
                   fit: BoxFit.cover,
                   progressIndicatorBuilder: (context, url, downloadProgress) =>
                       CircularProgressIndicator(value: downloadProgress.progress),
