@@ -47,7 +47,7 @@ android {
         applicationId "com.fotojenico.fotojenico"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 8
+        versionCode 9
         versionName flutterVersionName
         multiDexEnabled true
     }
