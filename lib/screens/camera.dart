@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 
 import 'package:fotojenico/globals.dart';
 import 'package:fotojenico/navbar.dart';
-import 'file:///C:/Users/Laptop/AndroidStudioProjects/fotojenico/lib/screens/send.dart';
+import 'package:fotojenico/screens/send.dart';
 
 class CameraScreen extends StatefulWidget {
   @override
@@ -155,7 +155,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   Widget _cameraPreviewWidget() {
     if (controller == null || !controller.value.isInitialized) {
       onNewCameraSelected(cameras[selectedCameraId]);
-      return Container();
+      return Container(child: Text("Loading"),);
     } else {
       if (imageToggle) {
         onTakePictureButtonPressed();
@@ -335,16 +335,15 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
 
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
-      //await controller?.dispose();
-      //setState(() {
-      //  controller = null;
-      //});
+      await controller?.dispose();
+      setState(() {
+        controller = null;
+      });
     }
     setState(() {
       controller = new CameraController(
         cameraDescription,
         ResolutionPreset.ultraHigh,
-        enableAudio: enableAudio,
       );
     });
 
@@ -352,6 +351,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       await controller.initialize();
     } on CameraException catch (e) {
       _showCameraException(e);
+      print(controller);
     }
     // If the controller is updated then update the UI.
     controller.addListener(() {
