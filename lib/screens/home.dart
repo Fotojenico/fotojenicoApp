@@ -90,10 +90,14 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
         setState(() {
           lastEmpty = true;
         });
+        prefs.remove('data');
+      } else {
+        await prefs.setString('data', request.body);
       }
       urlList.addAll(postList);
       var urls = dataCache;
       urls.insertAll(0, urlList);
+      urls.addAll(dbPostList);
       setState(() {
         dataCache = urls;
         if (start){
