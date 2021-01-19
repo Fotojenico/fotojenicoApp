@@ -23,7 +23,7 @@ String sentImage;
 String sentVideo;
 BuildContext navContext;
 
-String webApiUrl = kDebugMode ? 'http://192.168.1.110:8000/api/' : 'https://fotojenico.com/api/';
+String webApiUrl = kDebugMode ? 'http://10.0.2.2:8000/api/' : 'https://fotojenico.com/api/';
 List<ThemeData> lightThemeList = [
   ThemeData(
     primaryColor: Colors.amber[800],
