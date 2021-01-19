@@ -13,6 +13,8 @@ import 'package:firebase_admob/firebase_admob.dart';
 import 'package:fotojenico/globals.dart';
 import 'package:fotojenico/navbar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fotojenico/database.dart' as db;
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -46,6 +48,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     });
     String _token;
     Future<IdTokenResult> idToken;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     await user.map((value) => idToken = value.user.getIdTokenResult(), empty: (_) {}, initializing: (_) {});
     await idToken.then((value) => _token = value.token);
@@ -53,8 +56,36 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     header["auth"] = _token;
     try {
       var urlList = [];
+      var localDb = await db.LocalDatabase('local.db').getDb();
+
+      var dbResult = await localDb.query('Post');
+      print(dbResult);
+      List<Post> dbPostList = [];
+      for (var x in dbResult){
+          dbPostList.add(Post.fromJson(x));
+      }
       final request = await http.get(postUrl, headers: header);
       List<Post> postList = ((json.decode(request.body) as List).map((i) => Post.fromJson(i)).toList());
+      for (Post x in postList){
+        print(x);
+        var postInDb = await localDb.query('Post',where: 'id = ?', whereArgs: [x.id]);
+        if (postInDb.isEmpty){
+          await localDb.insert(
+              'Post',
+              {
+                'id': x.id,
+                'upvote_count': x.upvoteCount,
+                'downvote_count': x.downvoteCount,
+                'favourite_count': x.favouriteCount,
+                'file': x.file,
+                'owner': x.owner,
+                'shared_at': x.sharedAt.toString(),
+                'last_modified': x.lastModified.toString()
+              }
+          );
+
+        }
+      }
       if(postList.length == 0){
         setState(() {
           lastEmpty = true;
@@ -83,6 +114,8 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     String timeDiff = DateTime.now().difference(watchCounter).inSeconds.toString();
     String _token;
     Future<IdTokenResult> idToken;
+    var localDb = await db.LocalDatabase('local.db').getDb();
+    await localDb.delete('Post',where: 'id = ?', whereArgs: [post.id]);
     String voteUrl = webApiUrl + 'votes/';
     await user.map((value) => idToken = value.user.getIdTokenResult(), empty: (_) {}, initializing: (_) {});
     await idToken.then((value) => _token = value.token);
@@ -103,13 +136,27 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<Null> sendFav(Post post) async {
     String _token;
     Future<IdTokenResult> idToken;
-    String voteUrl = webApiUrl + 'fav/';
+    String favUrl = webApiUrl + 'fav/';
+    var localDb = await db.LocalDatabase('local.db').getDb();
+    await localDb.insert(
+        'FavPost',
+        {
+          'id': post.id,
+          'upvote_count': post.upvoteCount,
+          'downvote_count': post.downvoteCount,
+          'favourite_count': post.favouriteCount,
+          'file': post.file,
+          'owner': post.owner,
+          'shared_at': post.sharedAt.toString(),
+          'last_modified': post.lastModified.toString()
+        }
+    );
     await user.map((value) => idToken = value.user.getIdTokenResult(), empty: (_) {}, initializing: (_) {});
     await idToken.then((value) => _token = value.token);
     Map<String, String> header = new Map();
     header["auth"] = _token;
     try {
-      var response = await http.post(voteUrl, headers: header, body: {
+      var response = await http.post(favUrl, headers: header, body: {
         'post': post.id,
       });
       setState(() {
@@ -121,16 +168,18 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<Null> sendUnFav() async {
+  Future<Null> sendUnFav(Post post) async {
     String _token;
     Future<IdTokenResult> idToken;
-    String favUrl = webApiUrl + 'fav/';
+    String favUrl = webApiUrl + 'fav/delete/';
+    var localDb = await db.LocalDatabase('local.db').getDb();
+    await localDb.delete('FavPost',where: 'id = ?', whereArgs: [post.id]);
     await user.map((value) => idToken = value.user.getIdTokenResult(), empty: (_) {}, initializing: (_) {});
     await idToken.then((value) => _token = value.token);
     Map<String, String> header = new Map();
     header["auth"] = _token;
     try {
-      await http.delete(favUrl + lastFav + '/', headers: header);
+      await http.get(favUrl + '?post=' + post.id, headers: header);
     } catch (e) {
       print('caught generic exception');
       print(e);
@@ -367,7 +416,7 @@ class CardDemoState extends State<HomeScreen> with TickerProviderStateMixin {
   favPost(Post post) {
     setState(() {
       if (floatingIcon.icon != Icons.favorite_border) {
-        sendUnFav();
+        sendUnFav(post);
         floatingIcon = Icon(
           Icons.favorite_border,
           size: 40,
