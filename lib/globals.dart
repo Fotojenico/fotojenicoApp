@@ -12,7 +12,7 @@ FirebaseAnalytics analytics = FirebaseAnalytics();
 FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
 LitUser user;
 List<CameraDescription> cameras = [];
-bool adToggle = false;
+bool adToggle = !kDebugMode;
 bool cameraToggle = false;
 bool imageToggle = false;
 bool videoStartToggle = false;
