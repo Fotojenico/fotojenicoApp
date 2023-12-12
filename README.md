@@ -1,8 +1,6 @@
 # Fotojenico
 
-Which one is more fotojenico?
-
-## Getting Started
+Old app for Fotojenico written with Flutter before null safety was introduced. Probably not working.
 
 ## Sources
 ### Home screen
